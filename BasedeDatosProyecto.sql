@@ -12,10 +12,9 @@ CREATE TABLE usuarios (
     apellido2 VARCHAR(20),
     correo VARCHAR(30) NOT NULL,
     telefono VARCHAR(10) NOT NULL,
-    puesto VARCHAR(20) NOT NULL DEFAULT 1,
+    puesto VARCHAR(20) NOT NULL, 
     activo INT NOT NULL DEFAULT 1
-)
-ENGINE = MyISAM;
+);
 
 CREATE TABLE bajaUsuarios (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -31,8 +30,9 @@ CREATE TABLE bajaUsuarios (
     */
     CONSTRAINT FK_bajaUsuariosResponsablesUsuarioId FOREIGN KEY (responsableBaja)
     REFERENCES usuarios(id)
-)
-ENGINE = MyISAM;
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+);
 
 CREATE TABLE tickets(
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -44,14 +44,15 @@ CREATE TABLE tickets(
     codigoRecibo VARCHAR(10) NOT NULL,
     prioridad VARCHAR(10) NOT NULL,
     fechaRegistro DATETIME NOT NULL,
-    status VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Abierto',
     idUsuario INT,
-    fechaConclusion DATETIME NOT NULL,
+    fechaConclusion DATETIME,
     activo INT NOT NULL DEFAULT 1,
     CONSTRAINT FK_TicketsUsuarios FOREIGN KEY (idUsuario)
     REFERENCES usuarios(id)
-)
-ENGINE = MyISAM;
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+);
 
 CREATE TABLE bajaTickets (
     id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -59,21 +60,24 @@ CREATE TABLE bajaTickets (
     fecha DATETIME NOT NULL,
     responsableBaja INT NOT NULL,
     CONSTRAINT FK_bajaTicketsTickets FOREIGN KEY (idTicket)
-    REFERENCES tickets(id),
+    REFERENCES tickets(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
     CONSTRAINT FK_bajaTicketsUsuarios FOREIGN KEY (responsableBaja)
     REFERENCES usuarios(id)
-)
-ENGINE = MyISAM;
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+);
 
 /* Definición de los usuarios de la base de datos */
 CREATE USER 'administrador'@'localhost' IDENTIFIED BY '12345678';
-/* administrador tendrá permisos para Altas, Bajas, Cambios y Consultas */
+
 GRANT INSERT, DELETE, UPDATE, SELECT ON tickets.* TO 'administrador'@'localhost';
 
 CREATE USER 'tecnico'@'localhost' IDENTIFIED BY '12345678';
-/* tecnico tendrá permisos para Altas, Cambios y Consultas */
+
 GRANT INSERT, UPDATE, SELECT ON tickets.* TO 'tecnico'@'localhost';
 
 CREATE USER 'usuario'@'localhost' IDENTIFIED BY '12345678';
-/* usuario tendrá permisos para Altas y Consultas */
+
 GRANT INSERT, SELECT ON tickets.tickets TO 'usuario'@'localhost';
